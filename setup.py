@@ -2,7 +2,7 @@ from distutils.core import setup # setuptools breaks
 
 # Dynamically calculate the version based on knowledge.VERSION
 version_tuple = __import__('rest_hooks').VERSION
-version = '1.0.4' #'.'.join([str(v) for v in version_tuple])
+version = '.'.join([str(v) for v in version_tuple])
 
 setup(
     name = 'django-rest-hooks',
