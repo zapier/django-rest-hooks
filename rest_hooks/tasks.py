@@ -1,7 +1,11 @@
-from celery.task import Task
 import requests
+import json
 
-from useful.utils import force_json as json
+from celery.task import Task
+
+from django.core.serializers.json import DjangoJSONEncoder
+
+from rest_hooks.models import Hook
 
 
 class DeliverHook(Task):
@@ -14,7 +18,7 @@ class DeliverHook(Task):
         """
         response = requests.post(
             url=target,
-            data=json.dumps(payload),
+            data=json.dumps(payload, cls=DjangoJSONEncoder),
             headers={'Content-Type': 'application/json'}
         )
 
