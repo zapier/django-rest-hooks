@@ -56,7 +56,7 @@ def distill_model_event(instance, model, action, user_override=None):
     app/model mappings, convert to the defined event.name
     and let hooks fly.
 
-    If that model isn't represented, we just quite silenty.
+    If that model isn't represented, we just quit silenty.
     """
     from rest_hooks.models import HOOK_EVENTS
 
