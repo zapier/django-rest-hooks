@@ -20,6 +20,7 @@ if getattr(settings, 'HOOK_THREADING', True):
 else:
     client = requests
 
+AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 class Hook(models.Model):
     """
@@ -28,7 +29,7 @@ class Hook(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    user = models.ForeignKey('auth.User', related_name='hooks')
+    user = models.ForeignKey(AUTH_USER_MODEL, related_name='hooks')
     event = models.CharField('Event', max_length=64,
                                       db_index=True,
                                       choices=[(e, e) for e in HOOK_EVENTS.keys()])
