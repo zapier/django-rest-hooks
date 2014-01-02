@@ -4,12 +4,18 @@ from mock import patch, MagicMock, ANY
 
 from datetime import datetime
 
+try:
+    # Django <= 1.6 backwards compatibility
+    from django.utils import simplejson as json
+except ImportError:
+    # Django >= 1.7
+    import json
+
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.comments.models import Comment
 from django.contrib.sites.models import Site
 from django.test import TestCase
-from django.utils import simplejson as json
 
 from rest_hooks import models
 Hook = models.Hook
