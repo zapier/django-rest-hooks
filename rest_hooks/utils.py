@@ -45,6 +45,10 @@ def find_and_fire_hook(event_name, instance, user_override=None):
             filters['user'] = instance.user
         elif isinstance(instance, User):
             filters['user'] = instance
+        else:
+            raise Exception(
+                '{} has no `user` property. REST Hooks needs this.'.format(repr(instance))
+            )
 
     # NOTE: This is probably up for discussion, but I think, in this
     # case, instead of raising an error, we should fire the hook for
@@ -71,8 +75,11 @@ def distill_model_event(instance, model, action, user_override=None):
         if auto:
             # break auto into App.Model, Action
             maybe_model, maybe_action = auto.rsplit('.', 1)
-            if model == maybe_model and action == maybe_action:
+            maybe_action = maybe_action.rsplit('+', 1)
+            if model == maybe_model and action == maybe_action[0]:
                 event_name = maybe_event_name
+                if len(maybe_action) == 2:
+                    user_override = True
 
     if event_name:
         find_and_fire_hook(event_name, instance, user_override=user_override)
