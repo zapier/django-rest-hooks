@@ -348,9 +348,9 @@ HOOK_DELIVERER = 'path.to.tasks.deliver_hook_wrapper'
 ### tasks.py ###
 
 from celery.task import Task
-import requests
 
-from django.utils import simplejson as json
+import json
+import requests
 
 
 class DeliverHook(Task):
