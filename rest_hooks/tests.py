@@ -12,6 +12,7 @@ from django.test import TestCase
 from django.utils import simplejson as json
 
 from rest_hooks import models
+from rest_hooks.utils import find_and_fire_hook
 Hook = models.Hook
 
 from rest_hooks import signals
@@ -61,11 +62,10 @@ class RESTHooksTest(TestCase):
     #############
 
     def test_no_user_property_fail(self):
-        self.assertRaises(models.find_and_fire_hook, args=('some.fake.event', self.user))
-        self.assertRaises(models.find_and_fire_hook, args=('special.thing', self.user))
+        self.assertRaises(find_and_fire_hook, args=('some.fake.event', self.user))
 
     def test_no_hook(self):
-        comment = Comment.objects.create(
+        Comment.objects.create(
             site=self.site,
             content_object=self.user,
             user=self.user,
@@ -131,7 +131,8 @@ class RESTHooksTest(TestCase):
         method_mock.return_value = None
         target = 'http://example.com/test_full_cycle_comment_hook'
 
-        hooks = [self.make_hook(event, target) for event in ['comment.added', 'comment.changed', 'comment.removed']]
+        for event in ['comment.added', 'comment.changed', 'comment.removed']:
+            self.make_hook(event, target)
 
         # created
         comment = Comment.objects.create(
@@ -168,7 +169,7 @@ class RESTHooksTest(TestCase):
         method_mock.return_value = None
         target = 'http://example.com/test_custom_instance_hook'
 
-        hook = self.make_hook('comment.moderated', target)
+        self.make_hook('comment.moderated', target)
 
         comment = Comment.objects.create(
             site=self.site,
@@ -196,7 +197,7 @@ class RESTHooksTest(TestCase):
         method_mock.return_value = None
         target = 'http://example.com/test_raw_custom_event'
 
-        hook = self.make_hook('special.thing', target)
+        self.make_hook('special.thing', target)
 
         raw_hook_event.send(
             sender=None,
@@ -217,7 +218,8 @@ class RESTHooksTest(TestCase):
         return # basically a debug test for thread pool bit
         target = 'http://requestbin.zapier.com/api/v1/bin/test_timed_cycle'
 
-        hooks = [self.make_hook(event, target) for event in ['comment.added', 'comment.changed', 'comment.removed']]
+        for event in ['comment.added', 'comment.changed', 'comment.removed']:
+            self.make_hook(event, target)
 
         for n in range(4):
             early = datetime.now()

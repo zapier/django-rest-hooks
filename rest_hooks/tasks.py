@@ -1,5 +1,5 @@
-import requests
 import json
+import requests
 
 from celery.task import Task
 

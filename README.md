@@ -14,8 +14,8 @@ dead simple. Here's how to get started:
 3. Start sending hooks!
 
 Using our **built-in actions**, zero work is required to support *any* basic `created`,
-`updated`, and `deleted` actions across any Django model. We also allow for 
-**custom actions** (IE: beyond **C**R**UD**) to be simply defined and triggered 
+`updated`, and `deleted` actions across any Django model. We also allow for
+**custom actions** (IE: beyond **C**R**UD**) to be simply defined and triggered
 for any model, as well as truly custom events that let you send arbitrary
 payloads.
 
@@ -73,7 +73,7 @@ INSTALLED_APPS = (
 HOOK_EVENTS = {
     # 'any.event.name': 'App.Model.Action' (created/updated/deleted)
     'book.added':       'bookstore.Book.created',
-    'book.changed':     'bookstore.Book.updated',
+    'book.changed':     'bookstore.Book.updated+',
     'book.removed':     'bookstore.Book.deleted',
     # and custom events, no extra meta data needed
     'book.read':         None,
@@ -85,6 +85,9 @@ HOOK_EVENTS = {
 class Book(models.Model):
     # NOTE: it is important to have a user property
     # as we use it to help find and trigger each Hook
+    # which is specific to users. If you want a Hook to
+    # be triggered for all users, add '+' to built-in Hooks
+    # or pass user_override=False for custom_hook events
     user = models.ForeignKey('auth.User')
     # maybe user is off a related object, so try...
     # user = property(lambda self: self.intermediary.user)
@@ -115,8 +118,8 @@ class Book(models.Model):
         from rest_hooks.signals import hook_event
         hook_event.send(
             sender=self.__class__,
-            event_name='book.read',
-            obj=self # the Book object
+            action='book.read',
+            instance=self # the Book object
         )
 ```
 
@@ -297,9 +300,9 @@ HOOK_DELIVERER = 'path.to.tasks.deliver_hook_wrapper'
 ### tasks.py ###
 
 from celery.task import Task
-import requests
 
-from django.utils import simplejson as json
+import json
+import requests
 
 
 class DeliverHook(Task):
