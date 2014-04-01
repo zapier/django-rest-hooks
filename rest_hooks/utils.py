@@ -30,23 +30,27 @@ def find_and_fire_hook(event_name, instance, user_override=None):
     from django.contrib.auth.models import User
     from rest_hooks.models import Hook, HOOK_EVENTS
 
-    if user_override:
-        user = user_override
-    elif hasattr(instance, 'user'):
-        user = instance.user
-    elif isinstance(instance, User):
-        user = instance
-    else:
-        raise Exception(
-            '{} has no `user` property. REST Hooks needs this.'.format(repr(instance))
-        )
-
     if not event_name in HOOK_EVENTS.keys():
         raise Exception(
             '"{}" does not exist in `settings.HOOK_EVENTS`.'.format(event_name)
         )
 
-    hooks = Hook.objects.filter(user=user, event=event_name)
+    filters = {'event': event_name}
+
+    if user_override:
+        filters['user'] = user_override
+    elif hasattr(instance, 'user'):
+        filters['user'] = instance.user
+    elif isinstance(instance, User):
+        filters['user'] = instance
+
+    # NOTE: This is probably up for discussion, but I think, in this
+    # case, instead of raising an error, we should fire the hook for
+    # all users/accounts it is subscribed to. That would be a genuine
+    # usecase rather than erroring because no user is associated with
+    # this event.
+
+    hooks = Hook.objects.filter(**filters)
     for hook in hooks:
         hook.deliver_hook(instance)
 
