@@ -37,12 +37,14 @@ def find_and_fire_hook(event_name, instance, user_override=None):
 
     filters = {'event': event_name}
 
-    if user_override:
-        filters['user'] = user_override
-    elif hasattr(instance, 'user'):
-        filters['user'] = instance.user
-    elif isinstance(instance, User):
-        filters['user'] = instance
+    # Ignore the user if the user_override is False
+    if user_override is not False:
+        if user_override:
+            filters['user'] = user_override
+        elif hasattr(instance, 'user'):
+            filters['user'] = instance.user
+        elif isinstance(instance, User):
+            filters['user'] = instance
 
     # NOTE: This is probably up for discussion, but I think, in this
     # case, instead of raising an error, we should fire the hook for
