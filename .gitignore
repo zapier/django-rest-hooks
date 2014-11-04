@@ -9,3 +9,5 @@ docs/_build
 .sass-cache
 
 tests/reports
+
+.tox

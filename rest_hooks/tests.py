@@ -1,5 +1,6 @@
 import requests
 import time
+import json
 from mock import patch, MagicMock, ANY
 
 from datetime import datetime
@@ -9,7 +10,6 @@ from django.contrib.auth.models import User
 from django.contrib.comments.models import Comment
 from django.contrib.sites.models import Site
 from django.test import TestCase
-from django.utils import simplejson as json
 
 from rest_hooks import models
 Hook = models.Hook

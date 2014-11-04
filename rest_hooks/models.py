@@ -1,9 +1,9 @@
 import requests
+import json
 
 from django.conf import settings
 from django.core import serializers, exceptions
 from django.db import models
-from django.utils import simplejson as json
 
 from rest_hooks.utils import get_module, find_and_fire_hook, distill_model_event
 
