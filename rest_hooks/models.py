@@ -1,9 +1,15 @@
 import requests
 
 from django.conf import settings
-from django.core import serializers, exceptions
+from django.core import serializers
 from django.db import models
-from django.utils import simplejson as json
+
+try:
+    # Django <= 1.6 backwards compatibility
+    from django.utils import simplejson as json
+except ImportError:
+    # Django >= 1.7
+    import json
 
 from rest_hooks.utils import get_module, find_and_fire_hook, distill_model_event
 
@@ -21,6 +27,7 @@ else:
     client = requests
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
+
 
 class Hook(models.Model):
     """
@@ -78,7 +85,6 @@ class Hook(models.Model):
 
         signals.hook_sent_event.send_robust(sender=self.__class__, payload=payload, instance=instance, hook=self)
         return None
-
 
     def __unicode__(self):
         return u'{} => {}'.format(self.event, self.target)
