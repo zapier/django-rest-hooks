@@ -76,7 +76,7 @@ HOOK_EVENTS = {
     'book.changed':     'bookstore.Book.updated',
     'book.removed':     'bookstore.Book.deleted',
     # and custom events, no extra meta data needed
-    'book.read':         None,
+    'book.read':         'bookstore.Book.read',
     'user.logged_in':    None
 }
 
@@ -115,8 +115,8 @@ class Book(models.Model):
         from rest_hooks.signals import hook_event
         hook_event.send(
             sender=self.__class__,
-            event_name='book.read',
-            obj=self # the Book object
+            action='read',
+            instance=self # the Book object
         )
 ```
 
