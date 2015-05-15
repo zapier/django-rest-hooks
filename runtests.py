@@ -34,6 +34,10 @@ settings.configure(
 )
 
 from django.test.utils import get_runner
+import django
+
+if hasattr(django, 'setup'):
+    django.setup()
 TestRunner = get_runner(settings)
 test_runner = TestRunner()
 failures = test_runner.run_tests([APP_NAME])
