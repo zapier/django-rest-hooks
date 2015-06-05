@@ -15,7 +15,8 @@ setup(
     packages=['rest_hooks'],
     package_data={
         'rest_hooks': [
-            'migrations/*.py'
+            'migrations/*.py',
+            'south_migrations/*.py'
         ]
     },
     classifiers = ['Development Status :: 3 - Alpha',
