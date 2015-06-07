@@ -5,12 +5,12 @@ def get_module(path):
 
         slugify = get_module('django.template.defaultfilters.slugify')
     """
-    from django.utils.importlib import import_module
+    from importlib import import_module
 
     try:
         mod_name, func_name = path.rsplit('.', 1)
         mod = import_module(mod_name)
-    except ImportError, e:
+    except ImportError as e:
         raise ImportError(
             'Error importing alert function {0}: "{1}"'.format(mod_name, e))
 

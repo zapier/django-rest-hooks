@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 
 import sys
+import django
+
 from django.conf import settings
+from django.apps import apps
 
 
 APP_NAME = 'rest_hooks'
@@ -28,10 +31,13 @@ settings.configure(
         'django.contrib.sessions',
         'django.contrib.admin',
         'django.contrib.sites',
-        'django.contrib.comments',
+        'django_comments',
         APP_NAME,
     ),
 )
+
+if hasattr(django, 'setup'):
+    django.setup()
 
 from django.test.utils import get_runner
 import django

@@ -13,7 +13,7 @@ except ImportError:
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.comments.models import Comment
+from django_comments.models import Comment
 from django.contrib.sites.models import Site
 from django.test import TestCase
 
@@ -42,10 +42,10 @@ class RESTHooksTest(TestCase):
         self.site = Site.objects.create(domain='example.com', name='example.com')
 
         models.HOOK_EVENTS = {
-            'comment.added':        'comments.Comment.created',
-            'comment.changed':      'comments.Comment.updated',
-            'comment.removed':      'comments.Comment.deleted',
-            'comment.moderated':    'comments.Comment.moderated',
+            'comment.added':        'django_comments.Comment.created',
+            'comment.changed':      'django_comments.Comment.updated',
+            'comment.removed':      'django_comments.Comment.deleted',
+            'comment.moderated':    'django_comments.Comment.moderated',
             'special.thing':        None
         }
 
@@ -240,13 +240,13 @@ class RESTHooksTest(TestCase):
                 comment.delete()
             total = datetime.now() - early
 
-            print total
+            print(total)
 
             while True:
                 response = requests.get(target + '/view')
                 sent = response.json
                 if sent:
-                    print len(sent), models.async_requests.total_sent
+                    print(len(sent), models.async_requests.total_sent)
                 if models.async_requests.total_sent >= (30 * (n+1)):
                     time.sleep(5)
                     break
