@@ -10,8 +10,7 @@ env:
   - DJANGO_VERSION="1.7"
 
 install:
-  - pip install -r devrequirements.txt
-  - pip install "Django>=${DJANGO_VERSION},<${DJANGO_VERSION}.99"
+  - pip install -r devrequirements_${DJANGO_VERSION}.txt
 
 script: python runtests.py
 
