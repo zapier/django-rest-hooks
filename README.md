@@ -75,7 +75,7 @@ INSTALLED_APPS = (
 HOOK_EVENTS = {
     # 'any.event.name': 'App.Model.Action' (created/updated/deleted)
     'book.added':       'bookstore.Book.created',
-    'book.changed':     'bookstore.Book.updated',
+    'book.changed':     'bookstore.Book.updated+',
     'book.removed':     'bookstore.Book.deleted',
     # and custom events, no extra meta data needed
     'book.read':         'bookstore.Book.read',
@@ -87,6 +87,9 @@ HOOK_EVENTS = {
 class Book(models.Model):
     # NOTE: it is important to have a user property
     # as we use it to help find and trigger each Hook
+    # which is specific to users. If you want a Hook to
+    # be triggered for all users, add '+' to built-in Hooks
+    # or pass user_override=False for custom_hook events
     user = models.ForeignKey('auth.User')
     # maybe user is off a related object, so try...
     # user = property(lambda self: self.intermediary.user)
@@ -348,9 +351,9 @@ HOOK_DELIVERER = 'path.to.tasks.deliver_hook_wrapper'
 ### tasks.py ###
 
 from celery.task import Task
-import requests
 
-from django.utils import simplejson as json
+import json
+import requests
 
 
 class DeliverHook(Task):
