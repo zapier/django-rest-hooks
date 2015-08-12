@@ -373,5 +373,5 @@ class DeliverHook(Task):
 deliver_hook_wrapper = DeliverHook.delay
 ```
 
-We also don't handle retries or cleanup. Generally, if you get a 410 or
-a bunch of 4xx or 5xx, you should delete the Hook and let the user know.
+We also don't handle retries or cleanup. Generally, if you get a `410` or
+a bunch of `4xx` or `5xx`, you should delete the Hook and let the user know.
