@@ -240,13 +240,13 @@ class RESTHooksTest(TestCase):
                 comment.delete()
             total = datetime.now() - early
 
-            print total
+            print(total)
 
             while True:
                 response = requests.get(target + '/view')
                 sent = response.json
                 if sent:
-                    print len(sent), models.async_requests.total_sent
+                    print(len(sent), models.async_requests.total_sent)
                 if models.async_requests.total_sent >= (30 * (n+1)):
                     time.sleep(5)
                     break

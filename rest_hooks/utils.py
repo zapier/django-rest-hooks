@@ -10,7 +10,7 @@ def get_module(path):
     try:
         mod_name, func_name = path.rsplit('.', 1)
         mod = import_module(mod_name)
-    except ImportError, e:
+    except ImportError as e:
         raise ImportError(
             'Error importing alert function {0}: "{1}"'.format(mod_name, e))
 
