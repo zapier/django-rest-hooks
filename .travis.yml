@@ -8,10 +8,10 @@ env:
   - DJANGO_VERSION="1.5"
   - DJANGO_VERSION="1.6"
   - DJANGO_VERSION="1.7"
+  - DJANGO_VERSION="1.8"
 
 install:
-  - pip install -r devrequirements.txt
-  - pip install "Django>=${DJANGO_VERSION},<${DJANGO_VERSION}.99"
+  - pip install -r devrequirements_${DJANGO_VERSION}.txt
 
 script: python runtests.py
 

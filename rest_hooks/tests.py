@@ -13,7 +13,12 @@ except ImportError:
 
 from django.conf import settings
 from django.contrib.auth.models import User
-from django.contrib.comments.models import Comment
+try:
+    from django.contrib.comments.models import Comment
+    comments_app_label = 'comments'
+except ImportError:
+    from django_comments.models import Comment
+    comments_app_label = 'django_comments'
 from django.contrib.sites.models import Site
 from django.test import TestCase
 
@@ -42,10 +47,10 @@ class RESTHooksTest(TestCase):
         self.site = Site.objects.create(domain='example.com', name='example.com')
 
         models.HOOK_EVENTS = {
-            'comment.added':        'comments.Comment.created',
-            'comment.changed':      'comments.Comment.updated',
-            'comment.removed':      'comments.Comment.deleted',
-            'comment.moderated':    'comments.Comment.moderated',
+            'comment.added':        comments_app_label + '.Comment.created',
+            'comment.changed':      comments_app_label + '.Comment.updated',
+            'comment.removed':      comments_app_label + '.Comment.deleted',
+            'comment.moderated':    comments_app_label + '.Comment.moderated',
             'special.thing':        None
         }
 
