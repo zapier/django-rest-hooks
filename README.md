@@ -286,7 +286,7 @@ urlpatterns = patterns('',
     (r'^api/', include(v1_api.urls)),
 )
 ```
-#### Django REST framework
+#### Django REST framework (3.+)
 
 ```python
 ### serializers.py ###
@@ -318,9 +318,8 @@ class HookViewSet(viewsets.ModelViewSet):
     model = Hook
     serializer_class = HookSerializer
 
-    def pre_save(self, obj):
-        super(HookViewSet, self).pre_save(obj)
-        obj.user = self.request.user
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
 
 ### urls.py ###
 
