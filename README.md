@@ -52,6 +52,9 @@ Now you can run the tests!
 python runtests.py
 ```
 
+### Requirements
+* Python (2.7, 3.3, 3.4)
+* Django (1.5, 1.6, 1.7, 1.8)
 
 ### Installing & Configuring
 
