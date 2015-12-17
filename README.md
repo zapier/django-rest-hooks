@@ -136,7 +136,7 @@ handle the basic `created`, `updated` and `deleted` signals & events:
 >>> from rest_hooks.model import Hook
 >>> jrrtolkien = User.objects.create(username='jrrtolkien')
 >>> hook = Hook(user=jrrtolkien,
-                event='book.created',
+                event='book.added',
                 target='http://example.com/target.php')
 >>> hook.save()     # creates the hook and stores it for later...
 >>> from bookstore.models import Book
@@ -155,7 +155,7 @@ POST http://example.com/target.php \
     -H Content-Type: application/json \
     -d '{"hook": {
            "id":      123,
-           "event":   "book.created",
+           "event":   "book.added",
            "target":  "http://example.com/target.php"},
          "data": {
            "title":   "The Two Towers",
@@ -218,7 +218,7 @@ The basic target functionality is:
 POST http://your-app.com/api/hooks?username=me&api_key=abcdef \
     -H Content-Type: application/json \
     -d '{"target":    "http://example.com/target.php",
-         "event":     "book.created"}'
+         "event":     "book.added"}'
 ```
 
 Now, whenever a Book is created (either via an ORM, a Django form, admin, etc...),
@@ -229,7 +229,7 @@ POST http://example.com/target.php \
     -H Content-Type: application/json \
     -d '{"hook": {
            "id":      123,
-           "event":   "book.created",
+           "event":   "book.added",
            "target":  "http://example.com/target.php"},
          "data": {
            "title":   "Structure and Interpretation of Computer Programs",
