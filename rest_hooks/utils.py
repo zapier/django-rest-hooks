@@ -23,6 +23,7 @@ def get_module(path):
 
     return func
 
+
 def find_and_fire_hook(event_name, instance, user_override=None):
     """
     Look up Hooks that apply
@@ -49,7 +50,6 @@ def find_and_fire_hook(event_name, instance, user_override=None):
             raise Exception(
                 '{} has no `user` property. REST Hooks needs this.'.format(repr(instance))
             )
-
     # NOTE: This is probably up for discussion, but I think, in this
     # case, instead of raising an error, we should fire the hook for
     # all users/accounts it is subscribed to. That would be a genuine
@@ -59,6 +59,7 @@ def find_and_fire_hook(event_name, instance, user_override=None):
     hooks = Hook.objects.filter(**filters)
     for hook in hooks:
         hook.deliver_hook(instance)
+
 
 def distill_model_event(instance, model, action, user_override=None):
     """
