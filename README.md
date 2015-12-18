@@ -214,7 +214,7 @@ the Hook resource is part of an API.
 
 The basic target functionality is:
 
-```
+```shell
 POST http://your-app.com/api/hooks?username=me&api_key=abcdef \
     -H Content-Type: application/json \
     -d '{"target":    "http://example.com/target.php",
@@ -224,7 +224,7 @@ POST http://your-app.com/api/hooks?username=me&api_key=abcdef \
 Now, whenever a Book is created (either via an ORM, a Django form, admin, etc...),
 `http://example.com/target.php` will get:
 
-```
+```shell
 POST http://example.com/target.php \
     -H Content-Type: application/json \
     -d '{"hook": {
