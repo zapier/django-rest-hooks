@@ -102,6 +102,7 @@ from rest_hooks.signals import hook_event, raw_hook_event
 
 get_opts = lambda m: m._meta.concrete_model._meta
 
+
 @receiver(post_save, dispatch_uid='instance-saved-hook')
 def model_saved(sender, instance,
                         created,
@@ -116,6 +117,7 @@ def model_saved(sender, instance,
     action = 'created' if created else 'updated'
     distill_model_event(instance, model, action)
 
+
 @receiver(post_delete, dispatch_uid='instance-deleted-hook')
 def model_deleted(sender, instance,
                           using,
@@ -126,6 +128,7 @@ def model_deleted(sender, instance,
     opts = get_opts(instance)
     model = '.'.join([opts.app_label, opts.object_name])
     distill_model_event(instance, model, 'deleted')
+
 
 @receiver(hook_event, dispatch_uid='instance-custom-hook')
 def custom_action(sender, action,
@@ -138,6 +141,7 @@ def custom_action(sender, action,
     opts = get_opts(instance)
     model = '.'.join([opts.app_label, opts.object_name])
     distill_model_event(instance, model, action, user_override=user)
+
 
 @receiver(raw_hook_event, dispatch_uid='raw-custom-hook')
 def raw_custom_event(sender, event_name,
