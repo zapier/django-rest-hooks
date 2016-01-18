@@ -44,7 +44,7 @@ class RESTHooksTest(TestCase):
         self.client = requests # force non-async for test cases
 
         self.user = User.objects.create_user('bob', 'bob@example.com', 'password')
-        self.site = Site.objects.create(domain='example.com', name='example.com')
+        self.site, created = Site.objects.get_or_create(domain='example.com', name='example.com')
 
         models.HOOK_EVENTS = {
             'comment.added':        comments_app_label + '.Comment.created',
@@ -260,7 +260,7 @@ class RESTHooksTest(TestCase):
         requests.delete(target + '/view') # cleanup to be polite
 
     def test_signal_emitted_upon_success(self):
-        wrapper =  lambda *args, **kwargs: None
+        wrapper = lambda *args, **kwargs: None
         mock_handler = MagicMock(wraps=wrapper)
 
         signals.hook_sent_event.connect(mock_handler, sender=Hook)
