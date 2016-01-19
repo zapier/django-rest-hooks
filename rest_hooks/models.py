@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import requests
 
 from django.conf import settings
@@ -61,9 +63,17 @@ class Hook(models.Model):
             serializer = get_module(settings.HOOK_SERIALIZER)
             return serializer(instance, hook=self)
         # if no user defined serializers, fallback to the django builtin!
+        data = serializers.serialize('python', [instance])[0]
+        for k, v in data.items():
+            if isinstance(v, OrderedDict):
+                data[k] = dict(v)
+
+        if isinstance(data, OrderedDict):
+            data = dict(data)
+
         return {
             'hook': self.dict(),
-            'data': serializers.serialize('python', [instance])[0]
+            'data': data,
         }
 
     def deliver_hook(self, instance, payload_override=None):
