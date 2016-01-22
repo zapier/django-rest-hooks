@@ -1,5 +1,6 @@
-
-## What are Django REST Hooks? [![Build Status](https://travis-ci.org/zapier/django-rest-hooks.svg?branch=master)](https://travis-ci.org/zapier/django-rest-hooks)
+[![Travis branch](https://img.shields.io/travis/zapier/django-rest-hooks/master.svg)](https://travis-ci.org/zapier/django-rest-hooks)
+[![PyPI](https://img.shields.io/pypi/v/django-rest-hooks.svg)](https://pypi.python.org/pypi/django-rest-hooks)
+## What are Django REST Hooks? 
 
 
 REST Hooks are fancier versions of webhooks. Traditional webhooks are usually
