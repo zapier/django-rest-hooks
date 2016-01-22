@@ -1,5 +1,6 @@
-[![Travis branch](https://img.shields.io/travis/zapier/django-rest-hooks/master.svg)](https://travis-ci.org/zapier/django-rest-hooks)
-[![PyPI](https://img.shields.io/pypi/v/django-rest-hooks.svg)](https://pypi.python.org/pypi/django-rest-hooks)
+[![Travis CI Build](https://img.shields.io/travis/zapier/django-rest-hooks/master.svg)](https://travis-ci.org/zapier/django-rest-hooks)
+[![PyPI Download](https://img.shields.io/pypi/v/django-rest-hooks.svg)](https://pypi.python.org/pypi/django-rest-hooks)
+[![PyPI Status](https://img.shields.io/pypi/status/django-rest-hooks.svg)](https://pypi.python.org/pypi/django-rest-hooks)
 ## What are Django REST Hooks? 
 
 
