@@ -26,3 +26,13 @@ matrix:
       env: DJANGO_VERSION="1.4"
     - python: "3.3"
       env: DJANGO_VERSION="1.9"
+
+deploy:
+  provider: pypi
+  user: bryanhelmig
+  password:
+    secure: amY+WgU7S4RD/8S4rDz6/Gso1bucyqWWdCfG5RXHxD1mBcOIBjfiVmDkbiOxODany3KS5Hmo3mvXjOlpgmhuxw2iWdG1o059pMh8PH7I2WwHTliUSGwIshFIUmAivrh1mq9qUsHfsGpPow3AaxFB7G/FnrAQjedTTGYfN5ZnI/k=
+  on:
+    tags: true
+    distributions: sdist bdist_wheel
+    repo: zapier/django-rest-hooks
