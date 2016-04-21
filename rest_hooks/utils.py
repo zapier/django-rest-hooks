@@ -83,7 +83,7 @@ def distill_model_event(instance, model, action, user_override=None):
             if model == maybe_model and action == maybe_action[0]:
                 event_name = maybe_event_name
                 if len(maybe_action) == 2:
-                    user_override = True
+                    user_override = False
 
     if event_name:
         find_and_fire_hook(event_name, instance, user_override=user_override)
