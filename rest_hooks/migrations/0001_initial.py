@@ -18,8 +18,8 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('created', models.DateTimeField(auto_now_add=True)),
                 ('updated', models.DateTimeField(auto_now=True)),
-                ('event', models.CharField(max_length=64, verbose_name=b'Event', db_index=True)),
-                ('target', models.URLField(max_length=255, verbose_name=b'Target URL')),
+                ('event', models.CharField(max_length=64, verbose_name='Event', db_index=True)),
+                ('target', models.URLField(max_length=255, verbose_name='Target URL')),
                 ('user', models.ForeignKey(related_name='hooks', to=settings.AUTH_USER_MODEL)),
             ],
             options={

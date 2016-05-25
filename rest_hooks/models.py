@@ -2,6 +2,7 @@ from collections import OrderedDict
 
 import requests
 
+from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.core import serializers
 from django.db import models
@@ -40,9 +41,15 @@ class Hook(models.Model):
 
     user = models.ForeignKey(AUTH_USER_MODEL, related_name='hooks')
     event = models.CharField('Event', max_length=64,
-                                      db_index=True,
-                                      choices=[(e, e) for e in HOOK_EVENTS.keys()])
+                                      db_index=True)
     target = models.URLField('Target URL', max_length=255)
+
+    def clean(self):
+        """ Validation for events. """
+        if self.event not in HOOK_EVENTS.keys():
+            raise ValidationError(
+                "Invalid hook event {evt}.".format(self.event)
+            )
 
     def dict(self):
         return {
