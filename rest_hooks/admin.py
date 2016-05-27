@@ -10,6 +10,11 @@ if HOOK_EVENTS is None:
 
 
 class HookForm(forms.ModelForm):
+    """
+    Model form to handle registered events, asuring
+    only events declared on HOOK_EVENTS settings
+    can be registered.
+    """
     ADMIN_EVENTS = [(x, x) for x in HOOK_EVENTS.keys()]
 
     def __init__(self, *args, **kwargs):
