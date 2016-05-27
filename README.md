@@ -150,6 +150,9 @@ handle the basic `created`, `updated` and `deleted` signals & events:
 ...
 ```
 
+> NOTE: If you try to register an invalid event hook (not listed on HOOK_EVENTS in settings.py)
+you will get a **ValidationError**.
+
 Now that the book has been created, `http://example.com/target.php` will get:
 
 ```
