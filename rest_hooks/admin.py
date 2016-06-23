@@ -17,6 +17,10 @@ class HookForm(forms.ModelForm):
     """
     ADMIN_EVENTS = [(x, x) for x in HOOK_EVENTS.keys()]
 
+    class Meta:
+        model = Hook
+        fields = ['user', 'target', 'event']
+
     def __init__(self, *args, **kwargs):
         super(HookForm, self).__init__(*args, **kwargs)
         self.fields['event'] = forms.ChoiceField(choices=self.ADMIN_EVENTS)
