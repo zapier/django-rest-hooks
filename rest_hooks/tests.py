@@ -278,7 +278,7 @@ class RESTHooksTest(TestCase):
         form_data = {
             'user': self.user.id,
             'target': "http://example.com",
-            'event': models.HOOK_EVENTS.keys()[0]
+            'event': HookForm.ADMIN_EVENTS[0][0]
         }
         form = HookForm(data=form_data)
         self.assertTrue(form.is_valid())
