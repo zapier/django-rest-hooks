@@ -48,7 +48,7 @@ class Hook(models.Model):
         """ Validation for events. """
         if self.event not in HOOK_EVENTS.keys():
             raise ValidationError(
-                "Invalid hook event {evt}.".format(self.event)
+                "Invalid hook event {evt}.".format(evt=self.event)
             )
 
     def dict(self):
