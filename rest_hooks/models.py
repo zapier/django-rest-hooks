@@ -27,7 +27,7 @@ if getattr(settings, 'HOOK_THREADING', True):
     from rest_hooks.client import Client
     client = Client()
 else:
-    client = requests
+    client = requests.Session()
 
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 

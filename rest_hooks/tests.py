@@ -86,7 +86,7 @@ class RESTHooksTest(TestCase):
             comment='Hello world!'
         )
 
-    @patch('requests.post', autospec=True)
+    @patch('rest_hooks.models.client.post', autospec=True)
     def perform_create_request_cycle(self, method_mock):
         method_mock.return_value = None
 
@@ -140,7 +140,7 @@ class RESTHooksTest(TestCase):
 
         del Comment.serialize_hook
 
-    @patch('requests.post')
+    @patch('rest_hooks.models.client.post')
     def test_full_cycle_comment_hook(self, method_mock):
         method_mock.return_value = None
         target = 'http://example.com/test_full_cycle_comment_hook'
@@ -175,7 +175,7 @@ class RESTHooksTest(TestCase):
         self.assertEquals('Goodbye world...', payloads[1]['data']['fields']['comment'])
         self.assertEquals('Goodbye world...', payloads[2]['data']['fields']['comment'])
 
-    @patch('requests.post')
+    @patch('rest_hooks.models.client.post')
     def test_custom_instance_hook(self, method_mock):
         from rest_hooks.signals import hook_event
 
@@ -203,7 +203,7 @@ class RESTHooksTest(TestCase):
         self.assertEquals('comment.moderated', payloads[0]['hook']['event'])
         self.assertEquals('Hello world!', payloads[0]['data']['fields']['comment'])
 
-    @patch('requests.post')
+    @patch('rest_hooks.models.client.post')
     def test_raw_custom_event(self, method_mock):
         from rest_hooks.signals import raw_hook_event
 
