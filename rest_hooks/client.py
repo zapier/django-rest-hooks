@@ -51,7 +51,8 @@ class Client(object):
                     self.flush_threads[index].start()
 
     def sync_flush(self):
-        while len(self.queue) > 0:
+        session = requests.Session()
+        while self.queue:
             method, args, kwargs = self.queue.pop()
-            getattr(requests, method)(*args, **kwargs)
+            getattr(session, method)(*args, **kwargs)
             self.total_sent += 1
