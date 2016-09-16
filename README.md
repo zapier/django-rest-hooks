@@ -67,7 +67,7 @@ pip install django-rest-hooks
 ```
 
 Next, you'll need to add `rest_hooks` to `INSTALLED_APPS` and configure
-you `HOOK_EVENTS` setting:
+your `HOOK_EVENTS` setting:
 
 ```python
 ### settings.py ###
