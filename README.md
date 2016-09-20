@@ -364,6 +364,8 @@ import requests
 
 
 class DeliverHook(Task):
+    max_retries = 5
+
     def run(self, target, payload, instance_id=None, hook_id=None, **kwargs):
         """
         target:     the url to receive the payload.
@@ -371,11 +373,17 @@ class DeliverHook(Task):
         instance_id:   a possibly None "trigger" instance ID
         hook_id:       the ID of defining Hook object
         """
-        requests.post(
-            url=target,
-            data=json.dumps(payload),
-            headers={'Content-Type': 'application/json'}
-        )
+        try:
+            response = requests.post(
+                url=target,
+                data=json.dumps(payload),
+                headers={'Content-Type': 'application/json'}
+            )
+            if response.status_code >= 500:
+                response.raise_for_response()
+        except requests.ConnectionError:
+            delay_in_seconds = 2 ** self.request.retries
+            self.retry(countdown=delay_in_seconds)
 
 
 def deliver_hook_wrapper(target, payload, instance, hook):
