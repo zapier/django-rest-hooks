@@ -1,3 +1,6 @@
+from django.conf import settings
+
+
 def get_module(path):
     """
     A modified duplicate from Django's built in backend
@@ -86,4 +89,7 @@ def distill_model_event(instance, model, action, user_override=None):
                     user_override = False
 
     if event_name:
-        find_and_fire_hook(event_name, instance, user_override=user_override)
+        finder = find_and_fire_hook
+        if getattr(settings, 'HOOK_FINDER', None):
+            finder = get_module(settings.HOOK_FINDER)
+        finder(event_name, instance, user_override=user_override)
