@@ -401,3 +401,41 @@ def deliver_hook_wrapper(target, payload, instance, hook):
 
 We also don't handle retries or cleanup. Generally, if you get a `410` or
 a bunch of `4xx` or `5xx`, you should delete the Hook and let the user know.
+
+### Extend the Hook model:
+
+The default `Hook` model fields can be extended using the `AbstractHook` model.
+For example, to add a `is_active` field on your hooks:
+
+```python
+### models.py ###
+
+from django.db import models
+from rest_hooks.models import AbstractHook
+
+class CustomHook(AbstractHook):
+    is_active = models.BooleanField(default=True)
+```
+
+The extended `CustomHook` model can be combined with a the `HOOK_FINDER` setting
+for advanced QuerySet filtering. 
+
+```python
+### settings.py ###
+
+HOOK_FINDER = 'path.to.find_and_fire_hook'
+
+### utils.py ###
+
+from .models import CustomHook
+
+def find_and_fire_hook(event_name, instance, **kwargs):
+    filters = {
+        'event': event_name,
+        'is_active': True,
+    }
+
+    hooks = CustomHook.objects.filter(**filters)
+    for hook in hooks:
+        hook.deliver_hook(instance)
+```
