@@ -29,6 +29,9 @@ from rest_hooks import signals
 from rest_hooks.admin import HookForm
 
 
+urlpatterns = []
+
+
 class RESTHooksTest(TestCase):
     """
     This test Class uses real HTTP calls to a requestbin service, making it easy
