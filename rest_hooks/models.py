@@ -32,17 +32,19 @@ else:
 AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
 
 
-class Hook(models.Model):
+class AbstractHook(models.Model):
     """
     Stores a representation of a Hook.
     """
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    user = models.ForeignKey(AUTH_USER_MODEL, related_name='hooks')
-    event = models.CharField('Event', max_length=64,
-                                      db_index=True)
+    user = models.ForeignKey(AUTH_USER_MODEL, related_name='%(class)ss')
+    event = models.CharField('Event', max_length=64, db_index=True)
     target = models.URLField('Target URL', max_length=255)
+
+    class Meta:
+        abstract = True
 
     def clean(self):
         """ Validation for events. """
@@ -105,6 +107,10 @@ class Hook(models.Model):
 
     def __unicode__(self):
         return u'{} => {}'.format(self.event, self.target)
+
+
+class Hook(AbstractHook):
+    pass
 
 
 ##############
