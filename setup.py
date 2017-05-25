@@ -1,4 +1,7 @@
-from distutils.core import setup # setuptools breaks
+try:
+    from setuptools import setup
+except ImportError:
+    from distutils.core import setup  # if setuptools breaks
 
 # Dynamically calculate the version
 version_tuple = __import__('rest_hooks').VERSION
