@@ -73,6 +73,14 @@ class RESTHooksTest(TestCase):
             target=target
         )
 
+    def make_hook_with_auth(self, event, target, authorization):
+        return Hook.objects.create(
+            user=self.user,
+            event=event,
+            target=target,
+            authorization=authorization
+        )
+
     #############
     ### TESTS ###
     #############
@@ -106,11 +114,43 @@ class RESTHooksTest(TestCase):
 
         return hook, comment, json.loads(method_mock.call_args_list[0][1]['data'])
 
+    @patch('requests.post', autospec=True)
+    def perform_create_request_cycle_authorized(self, method_mock):
+        method_mock.return_value = None
+
+        target = 'http://example.com/perform_create_request_cycle'
+        auth = 'Token 0639e26b-a9df-4fb7-9c40-10d7f62e6e06'
+        hook = self.make_hook_with_auth('comment.added', target, auth)
+
+        comment = Comment.objects.create(
+            site=self.site,
+            content_object=self.user,
+            user=self.user,
+            comment='Hello world!'
+        )
+        # time.sleep(1) # should change a setting to turn off async
+
+        return hook, comment, json.loads(method_mock.call_args_list[0][1]['data'])
+
     def test_simple_comment_hook(self):
         """
         Uses the default serializer.
         """
         hook, comment, payload = self.perform_create_request_cycle()
+
+        self.assertEquals(hook.id, payload['hook']['id'])
+        self.assertEquals('comment.added', payload['hook']['event'])
+        self.assertEquals(hook.target, payload['hook']['target'])
+
+        self.assertEquals(comment.id, payload['data']['pk'])
+        self.assertEquals('Hello world!', payload['data']['fields']['comment'])
+        self.assertEquals(comment.user.id, payload['data']['fields']['user'])
+
+    def test_simple_comment_hook_authorized(self):
+        """
+        Uses the default serializer.
+        """
+        hook, comment, payload = self.perform_create_request_cycle_authorized()
 
         self.assertEquals(hook.id, payload['hook']['id'])
         self.assertEquals('comment.added', payload['hook']['event'])

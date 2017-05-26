@@ -16,6 +16,7 @@ class Migration(SchemaMigration):
             ('user', self.gf('django.db.models.fields.related.ForeignKey')(related_name='hooks', to=orm['auth.User'])),
             ('event', self.gf('django.db.models.fields.CharField')(max_length=64, db_index=True)),
             ('target', self.gf('django.db.models.fields.URLField')(max_length=255)),
+            ('authorization', self.gf('django.db.models.fields.CharField')(max_length=200, blank=True, null=True)),
         ))
         db.send_create_signal('rest_hooks', ['Hook'])
 
@@ -69,7 +70,8 @@ class Migration(SchemaMigration):
             'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'target': ('django.db.models.fields.URLField', [], {'max_length': '255'}),
             'updated': ('django.db.models.fields.DateTimeField', [], {'auto_now': 'True', 'blank': 'True'}),
-            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'hooks'", 'to': "orm['auth.User']"})
+            'user': ('django.db.models.fields.related.ForeignKey', [], {'related_name': "'hooks'", 'to': "orm['auth.User']"}),
+            'authorization': ('django.db.models.fields.CharField', [], {'max_length': '200', 'blank': 'True', 'null': 'True'})
         }
     }
 

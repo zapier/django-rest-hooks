@@ -21,6 +21,8 @@ class Migration(migrations.Migration):
                 ('event', models.CharField(max_length=64, verbose_name='Event', db_index=True)),
                 ('target', models.URLField(max_length=255, verbose_name='Target URL')),
                 ('user', models.ForeignKey(related_name='hooks', to=settings.AUTH_USER_MODEL)),
+                ('authorization', models.CharField(max_length=200, verbose_name=b'Authorization', null=True, blank=True)),
+
             ],
             options={
             },
