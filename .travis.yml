@@ -33,6 +33,10 @@ matrix:
     - python: "3.3"
       env: DJANGO_VERSION="1.11"
 
+before_deploy:
+  - pip install wheel
+  - python setup.py sdist bdist_wheel
+
 deploy:
   provider: pypi
   user: bryanhelmig
