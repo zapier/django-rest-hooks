@@ -55,8 +55,9 @@ python runtests.py
 ```
 
 ### Requirements
-* Python (2.7, 3.3, 3.4)
-* Django (1.5, 1.6, 1.7, 1.8, 1.9)
+
+* Python 2 or 3 (tested on 2.7, 3.3, 3.4, 3.6)
+* Django 1.4+ (tested on 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11)
 
 ### Installing & Configuring
 
