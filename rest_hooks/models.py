@@ -5,6 +5,7 @@ import requests
 from django.core.exceptions import ValidationError
 from django.conf import settings
 from django.core import serializers
+from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
 
 try:
@@ -98,7 +99,7 @@ class AbstractHook(models.Model):
         else:
             client.post(
                 url=self.target,
-                data=json.dumps(payload, cls=serializers.json.DjangoJSONEncoder),
+                data=json.dumps(payload, cls=DjangoJSONEncoder),
                 headers={'Content-Type': 'application/json'}
             )
 
