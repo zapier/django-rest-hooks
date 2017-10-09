@@ -136,7 +136,7 @@ handle the basic `created`, `updated` and `deleted` signals & events:
 
 ```python
 >>> from django.contrib.auth.models import User
->>> from rest_hooks.model import Hook
+>>> from rest_hooks.models import Hook
 >>> jrrtolkien = User.objects.create(username='jrrtolkien')
 >>> hook = Hook(user=jrrtolkien,
                 event='book.added',
