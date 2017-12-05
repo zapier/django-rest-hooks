@@ -57,7 +57,7 @@ python runtests.py
 ### Requirements
 
 * Python 2 or 3 (tested on 2.7, 3.3, 3.4, 3.6)
-* Django 1.4+ (tested on 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11)
+* Django 1.4+ (tested on 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 2.0)
 
 ### Installing & Configuring
 
@@ -96,7 +96,7 @@ class Book(models.Model):
     # which is specific to users. If you want a Hook to
     # be triggered for all users, add '+' to built-in Hooks
     # or pass user_override=False for custom_hook events
-    user = models.ForeignKey('auth.User')
+    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
     # maybe user is off a related object, so try...
     # user = property(lambda self: self.intermediary.user)
 
