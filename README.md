@@ -309,6 +309,7 @@ class HookSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Hook
+        fields = '__all__'
         read_only_fields = ('user',)
 
 ### views.py ###
@@ -324,6 +325,7 @@ class HookViewSet(viewsets.ModelViewSet):
     """
     Retrieve, create, update or destroy webhooks.
     """
+    queryset = Hook.objects.all()
     model = Hook
     serializer_class = HookSerializer
 
