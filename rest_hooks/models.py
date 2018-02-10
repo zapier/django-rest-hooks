@@ -15,7 +15,7 @@ except ImportError:
     # Django >= 1.7
     import json
 
-from rest_hooks.utils import get_module, find_and_fire_hook, distill_model_event
+from rest_hooks.utils import get_module, find_and_fire_hook, distill_model_event, OWNER_MODEL, OWNER_FIELD_NAME
 
 from rest_hooks import signals
 
@@ -30,8 +30,6 @@ if getattr(settings, 'HOOK_THREADING', True):
 else:
     client = requests.Session()
 
-AUTH_USER_MODEL = getattr(settings, 'AUTH_USER_MODEL', 'auth.User')
-
 
 class AbstractHook(models.Model):
     """
@@ -40,7 +38,7 @@ class AbstractHook(models.Model):
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
-    user = models.ForeignKey(AUTH_USER_MODEL, related_name='%(class)ss', on_delete=models.CASCADE)
+    user = models.ForeignKey(OWNER_MODEL, related_name='%(class)ss', on_delete=models.CASCADE)
     event = models.CharField('Event', max_length=64, db_index=True)
     target = models.URLField('Target URL', max_length=255)
 
