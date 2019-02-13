@@ -417,6 +417,10 @@ The default `Hook` model fields can be extended using the `AbstractHook` model.
 For example, to add a `is_active` field on your hooks:
 
 ```python
+### settings.py ###
+
+HOOK_CUSTOM_MODEL = 'path.to.models.CustomHook'
+
 ### models.py ###
 
 from django.db import models

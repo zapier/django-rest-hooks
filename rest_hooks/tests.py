@@ -303,3 +303,13 @@ class RESTHooksTest(TestCase):
     def test_invalid_form(self):
         form = HookForm(data={})
         self.assertFalse(form.is_valid())
+
+    def test_get_custom_hook_model(self):
+        # Using the default Hook model just to exercise get_hook_model's
+        # lookup machinery.
+        settings.HOOK_CUSTOM_MODEL = 'rest_hooks.models.Hook'
+        from rest_hooks.utils import get_hook_model
+        from rest_hooks.models import AbstractHook
+        HookModel = get_hook_model()
+        self.assertIs(HookModel, Hook)
+        self.assertTrue(issubclass(HookModel, AbstractHook))
