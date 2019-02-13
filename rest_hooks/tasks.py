@@ -5,7 +5,7 @@ from celery.task import Task
 
 from django.core.serializers.json import DjangoJSONEncoder
 
-from rest_hooks.models import Hook
+from rest_hooks.utils import get_hook_model
 
 
 class DeliverHook(Task):
@@ -23,7 +23,8 @@ class DeliverHook(Task):
         )
 
         if response.status_code == 410 and hook_id:
-            hook = Hook.object.get(id=hook_id)
+            HookModel = get_hook_model()
+            hook = HookModel.object.get(id=hook_id)
             hook.delete()
 
         # would be nice to log this, at least for a little while...
