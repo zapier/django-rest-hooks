@@ -389,7 +389,7 @@ class DeliverHook(Task):
                 headers={'Content-Type': 'application/json'}
             )
             if response.status_code >= 500:
-                response.raise_for_response()
+                response.raise_for_status()
         except requests.ConnectionError:
             delay_in_seconds = 2 ** self.request.retries
             self.retry(countdown=delay_in_seconds)
