@@ -14,7 +14,7 @@ setup(
     author = 'Bryan Helmig',
     author_email = 'bryan@zapier.com',
     url = 'http://github.com/zapier/django-rest-hooks',
-    install_requires=['Django>=1.4','requests'],
+    install_requires=['Django>=1.5', 'requests'],
     packages=['rest_hooks'],
     package_data={
         'rest_hooks': [

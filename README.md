@@ -1,6 +1,7 @@
 [![Travis CI Build](https://img.shields.io/travis/zapier/django-rest-hooks/master.svg)](https://travis-ci.org/zapier/django-rest-hooks)
 [![PyPI Download](https://img.shields.io/pypi/v/django-rest-hooks.svg)](https://pypi.python.org/pypi/django-rest-hooks)
 [![PyPI Status](https://img.shields.io/pypi/status/django-rest-hooks.svg)](https://pypi.python.org/pypi/django-rest-hooks)
+
 ## What are Django REST Hooks?
 
 
@@ -32,6 +33,53 @@ If you want to make a Django form or API resource, you'll need to do that yourse
 (though we've provided some example bits of code below).
 
 
+### Changelog
+
+#### Version 1.6.0:
+
+Improvements:
+
+* Default handler of `raw_hook_event` uses the same logic as other handlers
+  (see "Backwards incompatible changes" for details).
+
+* Lookup of event_name by model+action_name now has a complexity of `O(1)`
+  instead of `O(len(settings.HOOK_EVENTS))`
+
+* `HOOK_CUSTOM_MODEL` is now similar to `AUTH_USER_MODEL`: must be of the form
+  `app_label.model_name` (for django 1.7+). If old value is of the form
+  `app_label.models.model_name` then it's automatically adapted.
+
+* `rest_hooks.models.Hook` is now really "swappable", so table creation is
+  skipped if you have different `settings.HOOK_CUSTOM_MODEL`
+
+* `rest_hooks.models.AbstractHook.deliver_hook` now accepts a callable as
+  `payload_override` argument (must accept 2 arguments: hook, instance). This
+  was added to support old behavior of `raw_custom_event`.
+
+Fixes:
+
+* HookAdmin.form now honors `settings.HOOK_CUSTOM_MODEL`
+
+* event_name determined from action+model is now consistent between runs (see
+  "Backwards incompatible changes")
+
+Backwards incompatible changes:
+
+* Dropped support for django 1.4
+* Custom `HOOK_FINDER`-s should accept and handle new argument `payload_override`.
+  Built-in finder `rest_hooks.utls.find_and_fire_hook` already does this.
+* If several event names in `settings.HOOK_EVENTS` share the same
+  `'app_label.model.action'` (including `'app_label.model.action+'`) then
+  `django.core.exceptions.ImproperlyConfigured` is raised
+* Receiver of `raw_hook_event` now uses the same logic as receivers of other
+  signals: checks event_name against settings.HOOK_EVENTS, verifies model (if
+  instance is passed), uses `HOOK_FINDER`. Old behaviour can be achieved by
+  using `trust_event_name=True`, or `instance=None` to fire a signal.
+* If you have `settings.HOOK_CUSTOM_MODEL` of the form different than
+  `app_label.models.model_name` or `app_label.model_name`, then it must
+  be changed to `app_label.model_name`.
+
+
 ### Development
 
 Running the tests for Django REST Hooks is very easy, just:
@@ -57,7 +105,7 @@ python runtests.py
 ### Requirements
 
 * Python 2 or 3 (tested on 2.7, 3.3, 3.4, 3.6)
-* Django 1.4+ (tested on 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 2.0)
+* Django 1.5+ (tested on 1.5, 1.6, 1.7, 1.8, 1.9, 1.10, 1.11, 2.0)
 
 ### Installing & Configuring
 

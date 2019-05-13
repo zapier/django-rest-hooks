@@ -11,27 +11,38 @@ except ImportError:
     # Django >= 1.7
     import json
 
-from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.sites.models import Site
+from django.test import TestCase
+from django.test.utils import override_settings
 try:
     from django.contrib.comments.models import Comment
     comments_app_label = 'comments'
 except ImportError:
     from django_comments.models import Comment
     comments_app_label = 'django_comments'
-from django.contrib.sites.models import Site
-from django.test import TestCase
 
 from rest_hooks import models
-Hook = models.Hook
-
 from rest_hooks import signals
 from rest_hooks.admin import HookForm
 
+Hook = models.Hook
+
 
 urlpatterns = []
+HOOK_EVENTS_OVERRIDE = {
+    'comment.added':        comments_app_label + '.Comment.created',
+    'comment.changed':      comments_app_label + '.Comment.updated',
+    'comment.removed':      comments_app_label + '.Comment.deleted',
+    'comment.moderated':    comments_app_label + '.Comment.moderated',
+    'special.thing':        None,
+}
+
+ALT_HOOK_EVENTS = dict(HOOK_EVENTS_OVERRIDE)
+ALT_HOOK_EVENTS['comment.moderated'] += '+'
 
 
+@override_settings(HOOK_EVENTS=HOOK_EVENTS_OVERRIDE, HOOK_DELIVERER=None)
 class RESTHooksTest(TestCase):
     """
     This test Class uses real HTTP calls to a requestbin service, making it easy
@@ -43,28 +54,10 @@ class RESTHooksTest(TestCase):
     #############
 
     def setUp(self):
-        self.HOOK_EVENTS = getattr(settings, 'HOOK_EVENTS', None)
-        self.HOOK_DELIVERER = getattr(settings, 'HOOK_DELIVERER', None)
         self.client = requests # force non-async for test cases
 
         self.user = User.objects.create_user('bob', 'bob@example.com', 'password')
         self.site, created = Site.objects.get_or_create(domain='example.com', name='example.com')
-
-        models.HOOK_EVENTS = {
-            'comment.added':        comments_app_label + '.Comment.created',
-            'comment.changed':      comments_app_label + '.Comment.updated',
-            'comment.removed':      comments_app_label + '.Comment.deleted',
-            'comment.moderated':    comments_app_label + '.Comment.moderated',
-            'special.thing':        None
-        }
-
-        HookForm.ADMIN_EVENTS = [(x, x) for x in models.HOOK_EVENTS.keys()]
-        settings.HOOK_DELIVERER = None
-
-    def tearDown(self):
-        HookForm.ADMIN_EVENTS = [(x, x) for x in self.HOOK_EVENTS.keys()]
-        models.HOOK_EVENTS = self.HOOK_EVENTS
-        settings.HOOK_DELIVERER = self.HOOK_DELIVERER
 
     def make_hook(self, event, target):
         return Hook.objects.create(
@@ -76,6 +69,20 @@ class RESTHooksTest(TestCase):
     #############
     ### TESTS ###
     #############
+
+    @override_settings(HOOK_EVENTS=ALT_HOOK_EVENTS)
+    def test_get_event_actions_config(self):
+        self.assertEquals(
+            models.get_event_actions_config(),
+            {
+                comments_app_label + '.Comment': {
+                    'created': ('comment.added', False),
+                    'updated': ('comment.changed', False),
+                    'deleted': ('comment.removed', False),
+                    'moderated': ('comment.moderated', True),
+                },
+            }
+        )
 
     def test_no_user_property_fail(self):
         with self.assertRaises(Exception):
@@ -283,7 +290,7 @@ class RESTHooksTest(TestCase):
         form_data = {
             'user': self.user.id,
             'target': "http://example.com",
-            'event': HookForm.ADMIN_EVENTS[0][0]
+            'event': HookForm.get_admin_events()[0][0]
         }
         form = HookForm(data=form_data)
         self.assertTrue(form.is_valid())
@@ -292,7 +299,7 @@ class RESTHooksTest(TestCase):
         form_data = {
             'user': self.user.id,
             'target': "http://example.com",
-            'event': HookForm.ADMIN_EVENTS[0][0]
+            'event': HookForm.get_admin_events()[0][0]
         }
         form = HookForm(data=form_data)
 
@@ -304,10 +311,10 @@ class RESTHooksTest(TestCase):
         form = HookForm(data={})
         self.assertFalse(form.is_valid())
 
+    @override_settings(HOOK_CUSTOM_MODEL='rest_hooks.models.Hook')
     def test_get_custom_hook_model(self):
         # Using the default Hook model just to exercise get_hook_model's
         # lookup machinery.
-        settings.HOOK_CUSTOM_MODEL = 'rest_hooks.models.Hook'
         from rest_hooks.utils import get_hook_model
         from rest_hooks.models import AbstractHook
         HookModel = get_hook_model()

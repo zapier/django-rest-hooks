@@ -1,2 +1,0 @@
--r devrequirements.txt
-Django>=1.4.6,<1.5

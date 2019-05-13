@@ -2,11 +2,15 @@ from collections import OrderedDict
 
 import requests
 
-from django.core.exceptions import ValidationError
+import django
 from django.conf import settings
 from django.core import serializers
+from django.core.exceptions import ValidationError, ImproperlyConfigured
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db import models
+from django.db.models.signals import post_save, post_delete
+from django.test.signals import setting_changed
+from django.dispatch import receiver
 
 try:
     # Django <= 1.6 backwards compatibility
@@ -15,14 +19,43 @@ except ImportError:
     # Django >= 1.7
     import json
 
-from rest_hooks.utils import get_module, find_and_fire_hook, distill_model_event, get_hook_model
+from rest_hooks.signals import hook_event, raw_hook_event, hook_sent_event
+from rest_hooks.utils import distill_model_event, get_hook_model, get_module, find_and_fire_hook
 
-from rest_hooks import signals
 
+if getattr(settings, 'HOOK_CUSTOM_MODEL', None) is None:
+    settings.HOOK_CUSTOM_MODEL = 'rest_hooks.Hook'
 
 HOOK_EVENTS = getattr(settings, 'HOOK_EVENTS', None)
 if HOOK_EVENTS is None:
     raise Exception('You need to define settings.HOOK_EVENTS!')
+
+_HOOK_EVENT_ACTIONS_CONFIG = None
+
+
+def get_event_actions_config():
+    global _HOOK_EVENT_ACTIONS_CONFIG
+    if _HOOK_EVENT_ACTIONS_CONFIG is None:
+        _HOOK_EVENT_ACTIONS_CONFIG = {}
+        for event_name, auto in HOOK_EVENTS.items():
+            if not auto:
+                continue
+            model_label, action = auto.rsplit('.', 1)
+            action_parts = action.rsplit('+', 1)
+            action = action_parts[0]
+            ignore_user_override = False
+            if len(action_parts) == 2:
+                ignore_user_override = True
+
+            model_config = _HOOK_EVENT_ACTIONS_CONFIG.setdefault(model_label, {})
+            if action in model_config:
+                raise ImproperlyConfigured(
+                    "settings.HOOK_EVENTS have a dublicate {action} for model "
+                    "{model_label}".format(action=action, model_label=model_label)
+                )
+            model_config[action] = (event_name, ignore_user_override,)
+    return _HOOK_EVENT_ACTIONS_CONFIG
+
 
 if getattr(settings, 'HOOK_THREADING', True):
     from rest_hooks.client import Client
@@ -91,8 +124,21 @@ class AbstractHook(models.Model):
         Deliver the payload to the target URL.
 
         By default it serializes to JSON and POSTs.
+
+        Args:
+            instance: instance that triggered event.
+            payload_override: JSON-serializable object or callable that will
+                return such object. If callable is used it should accept 2
+                arguments: `hook` and `instance`.
         """
-        payload = payload_override or self.serialize_hook(instance)
+        if payload_override is None:
+            payload = self.serialize_hook(instance)
+        else:
+            payload = payload_override
+
+        if callable(payload):
+            payload = payload(self, instance)
+
         if getattr(settings, 'HOOK_DELIVERER', None):
             deliverer = get_module(settings.HOOK_DELIVERER)
             deliverer(self.target, payload, instance=instance, hook=self)
@@ -103,7 +149,7 @@ class AbstractHook(models.Model):
                 headers={'Content-Type': 'application/json'}
             )
 
-        signals.hook_sent_event.send_robust(sender=self.__class__, payload=payload, instance=instance, hook=self)
+        hook_sent_event.send_robust(sender=self.__class__, payload=payload, instance=instance, hook=self)
         return None
 
     def __unicode__(self):
@@ -111,20 +157,25 @@ class AbstractHook(models.Model):
 
 
 class Hook(AbstractHook):
-    pass
+    if django.VERSION >= (1, 7):
+        class Meta(AbstractHook.Meta):
+            swappable = 'HOOK_CUSTOM_MODEL'
+
 
 
 ##############
 ### EVENTS ###
 ##############
 
-from django.db.models.signals import post_save, post_delete
-from django.dispatch import receiver
 
-from rest_hooks.signals import hook_event, raw_hook_event
-
-
-get_opts = lambda m: m._meta.concrete_model._meta
+def get_model_label(instance):
+    if instance is None:
+        return None
+    opts = instance._meta.concrete_model._meta
+    try:
+        return opts.label
+    except AttributeError:
+        return '.'.join([opts.app_label, opts.object_name])
 
 
 @receiver(post_save, dispatch_uid='instance-saved-hook')
@@ -136,10 +187,9 @@ def model_saved(sender, instance,
     """
     Automatically triggers "created" and "updated" actions.
     """
-    opts = get_opts(instance)
-    model = '.'.join([opts.app_label, opts.object_name])
+    model_label = get_model_label(instance)
     action = 'created' if created else 'updated'
-    distill_model_event(instance, model, action)
+    distill_model_event(instance, model_label, action)
 
 
 @receiver(post_delete, dispatch_uid='instance-deleted-hook')
@@ -149,9 +199,8 @@ def model_deleted(sender, instance,
     """
     Automatically triggers "deleted" actions.
     """
-    opts = get_opts(instance)
-    model = '.'.join([opts.app_label, opts.object_name])
-    distill_model_event(instance, model, 'deleted')
+    model_label = get_model_label(instance)
+    distill_model_event(instance, model_label, 'deleted')
 
 
 @receiver(hook_event, dispatch_uid='instance-custom-hook')
@@ -162,30 +211,49 @@ def custom_action(sender, action,
     """
     Manually trigger a custom action (or even a standard action).
     """
-    opts = get_opts(instance)
-    model = '.'.join([opts.app_label, opts.object_name])
-    distill_model_event(instance, model, action, user_override=user)
+    model_label = get_model_label(instance)
+    distill_model_event(instance, model_label, action, user_override=user)
 
 
 @receiver(raw_hook_event, dispatch_uid='raw-custom-hook')
-def raw_custom_event(sender, event_name,
-                             payload,
-                             user,
-                             send_hook_meta=True,
-                             instance=None,
-                             **kwargs):
+def raw_custom_event(
+        sender,
+        event_name,
+        payload,
+        user,
+        send_hook_meta=True,
+        instance=None,
+        trust_event_name=False,
+        **kwargs
+        ):
     """
     Give a full payload
     """
-    HookModel = get_hook_model()
-    hooks = HookModel.objects.filter(user=user, event=event_name)
+    model_label = get_model_label(instance)
 
-    for hook in hooks:
-        new_payload = payload
-        if send_hook_meta:
-            new_payload = {
-                'hook': hook.dict(),
-                'data': payload
-            }
+    new_payload = payload
 
-        hook.deliver_hook(instance, payload_override=new_payload)
+    if send_hook_meta:
+        new_payload = lambda hook, instance: {
+            'hook': hook.dict(),
+            'data': payload
+        }
+
+    distill_model_event(
+        instance,
+        model_label,
+        None,
+        user_override=user,
+        event_name=event_name,
+        trust_event_name=trust_event_name,
+        payload_override=new_payload,
+    )
+
+
+@receiver(setting_changed)
+def handle_hook_events_change(sender, setting, *args, **kwargs):
+    global _HOOK_EVENT_ACTIONS_CONFIG
+    global HOOK_EVENTS
+    if setting == 'HOOK_EVENTS':
+        _HOOK_EVENT_ACTIONS_CONFIG = None
+        HOOK_EVENTS = settings.HOOK_EVENTS

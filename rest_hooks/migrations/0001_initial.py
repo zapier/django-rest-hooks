@@ -24,6 +24,7 @@ class Migration(migrations.Migration):
                 ('user', models.ForeignKey(related_name='hooks', to=settings.AUTH_USER_MODEL, on_delete=django.db.models.deletion.CASCADE)),
             ],
             options={
+                'swappable': 'HOOK_CUSTOM_MODEL',
             },
             bases=(models.Model,),
         ),
