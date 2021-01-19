@@ -20,7 +20,7 @@ except ImportError:
     import json
 
 from rest_hooks.signals import hook_event, raw_hook_event, hook_sent_event
-from rest_hooks.utils import distill_model_event, get_hook_model, get_module, find_and_fire_hook
+from rest_hooks.utils import distill_model_event, get_module
 
 
 if getattr(settings, 'HOOK_CUSTOM_MODEL', None) is None:
