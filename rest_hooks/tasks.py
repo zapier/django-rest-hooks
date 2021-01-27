@@ -1,7 +1,11 @@
 import requests
 import json
 
-from celery.task import Task
+try:
+    from celery import Task
+except ImportError:
+    # Available in celery versions before 5.0.
+    from celery.task import Task
 
 from django.core.serializers.json import DjangoJSONEncoder
 
